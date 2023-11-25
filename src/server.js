@@ -22,18 +22,29 @@ import http  from 'node:http'
  * 
  * GET/users => Estamos buscando usuários no back-end
  * POST/users => Estamos criando um usuário no back-end
+ * 
+ * Cabeçahos (Requisição/Resposta) => Metadados
  */
 
-
+const users =[]
 
 const server =http.createServer((req, res)=>{
 const {method, url} = req
 
  if(method === 'GET' && url ==='/users'){
-  return res.end('Listagem de usuários')
+  return res
+  .setHeader('Content-type', 'application/json')
+  .end(JSON.stringify(users))
  }
 
  if(method ==='POST' && url === '/users'){
+
+  users.push({
+    id: 1,
+    name: 'John Doe',
+    email: 'Johndoe@example.com'
+  })
+
   return res.end('Criação de usuário')
  }
 
