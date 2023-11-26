@@ -2,6 +2,7 @@
 
 import http from 'node:http'
 import { json } from './middlewares/json.js'
+import { Database } from './database.js'
 /**
  * Teremos as seguintes rotas
  * Criar usuario
@@ -30,26 +31,33 @@ import { json } from './middlewares/json.js'
  * local de procura sobre mdn http status code
  */
 
-const users = []
+const database = new Database()
 
 const server = http.createServer(async (req, res) => {
   const { method, url } = req
 
+  //middleware que realiza a agregação do boffer vindo da aplicação
   await json(req, res)
 
   if (method === 'GET' && url === '/users') {
+    const users = database.select('users')
+
     return res      
       .end(JSON.stringify(users))
   }
 
+
   if (method === 'POST' && url === '/users') {
     const { name, email } = req.body
 
-    users.push({
+   const user = {
       id: 1,
       name,
       email
-    })
+    }
+
+    //chama o metodo para criar o banco de dados do objeto database passando o nome da tabela e os dados do usuario
+    database.insert('users', user)
 
     return res.writeHead(201).end()
   }
