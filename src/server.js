@@ -1,9 +1,10 @@
 //importaçao de modulos internos por padrão coloca-se o prefixo node:
 
 import http from 'node:http'
-import{randomUUID} from 'node:crypto'
+
 import { json } from './middlewares/json.js'
-import { Database } from './database.js'
+import { routes } from './routes.js'
+
 /**
  * Teremos as seguintes rotas
  * Criar usuario
@@ -32,7 +33,7 @@ import { Database } from './database.js'
  * local de procura sobre mdn http status code
  */
 
-const database = new Database()
+
 
 const server = http.createServer(async (req, res) => {
   const { method, url } = req
@@ -40,29 +41,18 @@ const server = http.createServer(async (req, res) => {
   //middleware que realiza a agregação do boffer vindo da aplicação
   await json(req, res)
 
-  if (method === 'GET' && url === '/users') {
-    const users = database.select('users')
+  //rotas da aplicação
+  const route = routes.find(route => {
+    return route.method === method && route.path === url
+  })
 
-    return res      
-      .end(JSON.stringify(users))
+ //console.log(route)
+
+  if (route) {
+    return route.handler(req, res)
   }
 
-
-  if (method === 'POST' && url === '/users') {
-    const { name, email } = req.body
-
-   const user = {
-      id: randomUUID(),
-      name,
-      email
-    }
-
-    //chama o metodo para criar o banco de dados do objeto database passando o nome da tabela e os dados do usuario
-    database.insert('users', user)
-
-    return res.writeHead(201).end()
-  }
-
+  
   return res.writeHead(404).end()
 })
 server.listen(3333)
