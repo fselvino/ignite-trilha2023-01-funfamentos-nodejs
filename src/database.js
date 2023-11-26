@@ -1,6 +1,7 @@
 //a proposta é que seja um banco de dados para receber varias informaçoes
 
 import fs from 'node:fs/promises'
+import { serialize } from 'node:v8'
 
 const databasePath = new URL('../db.json', import.meta.url)
 //console.log(databasePath)
@@ -29,8 +30,20 @@ export class Database {
   }
 
   //metodos
-  select(table) {
-    const data = this.#database[table] ?? []
+  select(table, search) {
+
+    let data = this.#database[table] ?? []
+
+    //Object.entries converte um objeto {name: 'fernando', email: 'fernando@gmail.com'}
+    //para [[name, fernando],[email, fernando@gmail.com]]
+    if(search) {
+      data = data.filter(row => {
+        return Object.entries(search).some(([key, value])=>{
+          return row[key].toLowerCase().includes(value.toLowerCase())
+        })
+      })
+    }
+
     return data
   }
 
@@ -57,7 +70,7 @@ export class Database {
 
   update(table,id, data){
     const rowIndex = this.#database[table].findIndex(row => row.id === id)  
-      
+
     if(rowIndex > -1){
       this.#database[table][rowIndex]={id, ...data}
       this.#persist()
