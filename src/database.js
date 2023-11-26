@@ -3,7 +3,7 @@
 import fs from 'node:fs/promises'
 
 const databasePath = new URL('../db.json', import.meta.url)
-console.log(databasePath)
+//console.log(databasePath)
 
 export class Database {
 
@@ -11,6 +11,7 @@ export class Database {
   //O sustenido indica que o a variavel fica privada
   #database = {}
 
+  //construtor le o arquivo de db caso nao exista cria vazio
   constructor() {
     fs.readFile(databasePath, 'utf-8', import.meta.url)
       .then(data => {
@@ -37,7 +38,7 @@ export class Database {
     if (Array.isArray(this.#database[table])) {
       this.#database[table].push(data)
     } else {
-      this.#database[table] = data
+      this.#database[table] = [data] //cuidado se data não estiver em matrix na inclui dados
     }
 
     //persiste os dados
