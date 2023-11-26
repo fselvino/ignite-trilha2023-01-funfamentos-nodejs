@@ -31,6 +31,12 @@ import { routes } from './routes.js'
  * 
  * HTTP  Status Code 
  * local de procura sobre mdn http status code
+ * 
+ * AS TRÊS FORMAS DE UMA APLICAÇÃO ENVIAR INFORMAÇÕES PARA O BACK-END
+ * 1º  Query Parameters: Enviamos no endereço da requisição ex GET http://localhost:3333/users?userId=1&name=Fernando => muito utilizado para Filtros, Paginação, busca etc;
+ * 2º  Route Paramentes: Parametros não nomeados e que tambem ficam na rota ex DELETE http://localhost:3333/user/1 => muito utilizado para identificar um recurso;
+ * 3º  Request Body: Envio de informações de um formulário passam pelo trotocolo (HTTPs)
+ * 
  */
 
 
@@ -43,12 +49,16 @@ const server = http.createServer(async (req, res) => {
 
   //rotas da aplicação
   const route = routes.find(route => {
-    return route.method === method && route.path === url
+    return route.method === method && route.path.test(url)
   })
 
  //console.log(route)
 
   if (route) {
+     const routeParams = req.url.match(route.path)
+
+     req.params = {...routeParams.groups}
+     
     return route.handler(req, res)
   }
 
